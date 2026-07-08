@@ -92,15 +92,20 @@ p {
 
 .brand-mark {
   align-items: center;
-  background: linear-gradient(135deg, var(--teal), var(--indigo));
+  background: #ffffff;
   border-radius: 8px;
-  color: #ffffff;
   display: flex;
-  font-size: 22px;
-  font-weight: 900;
   height: 42px;
   justify-content: center;
+  overflow: hidden;
   width: 42px;
+}
+
+.brand-mark img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
 }
 
 .brand h1 {
@@ -195,7 +200,7 @@ p {
 }
 
 .api-control {
-  align-items: end;
+  align-items: start;
   display: grid;
   gap: 8px;
   grid-template-columns: 160px minmax(220px, 520px) auto;

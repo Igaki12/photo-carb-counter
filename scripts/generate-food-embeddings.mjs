@@ -24,7 +24,7 @@ async function embedFood(food) {
     content: {
       parts: [
         {
-          text: `食品名: ${food.name}\n食品群: ${food.groupName}\n備考: ${food.note || "なし"}`,
+          text: food.name,
         },
       ],
     },

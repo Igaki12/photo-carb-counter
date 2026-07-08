@@ -36,6 +36,7 @@ import type {
 } from "./types/domain";
 
 const STEP_LABELS = ["写真", "手検出", "食品選択", "質問", "結果"];
+const appIconUrl = `${import.meta.env.BASE_URL}assets/app-icon.jpg`;
 
 function initialHandMetrics(): HandMetrics {
   return { detected: false, confidence: 0, landmarkCount: 0 };
@@ -240,7 +241,9 @@ export function App() {
     <div className="app-shell">
       <aside className="workflow">
         <div className="brand">
-          <div className="brand-mark">C</div>
+          <div className="brand-mark">
+            <img alt="" src={appIconUrl} />
+          </div>
           <div>
             <h1>カーボカウント研究アプリ</h1>
             <p>写真・手・食品成分表から糖質量を推定</p>
