@@ -26,14 +26,31 @@ const CONNECTIONS = [
 
 interface HandOverlayProps {
   result: HandLandmarkerResult | null;
+  rect: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  } | null;
 }
 
-export function HandOverlay({ result }: HandOverlayProps) {
+export function HandOverlay({ result, rect }: HandOverlayProps) {
   const landmarks = result?.landmarks?.[0] ?? [];
-  if (landmarks.length === 0) return null;
+  if (landmarks.length === 0 || !rect || rect.width <= 0 || rect.height <= 0) return null;
 
   return (
-    <svg className="hand-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <svg
+      className="hand-overlay"
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      style={{
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+      }}
+    >
       {CONNECTIONS.map(([from, to]) => {
         const start = landmarks[from];
         const end = landmarks[to];

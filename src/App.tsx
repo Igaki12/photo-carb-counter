@@ -12,7 +12,7 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HandOverlay } from "./components/HandOverlay";
 import { QuestionForm } from "./components/QuestionForm";
 import { calculateCarbEstimate, fallbackWeightEstimate } from "./lib/carb";
@@ -25,6 +25,7 @@ import {
   testGeminiConnection,
   type ImagePayload,
 } from "./lib/gemini";
+import { getContainedRect, type Rect } from "./lib/imageGeometry";
 import type {
   CarbEstimate,
   FoodEmbeddingFile,
@@ -57,6 +58,7 @@ function formatNumber(value: number): string {
 }
 
 export function App() {
+  const imageStageRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const [apiKey, setApiKey] = useState("");
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "testing" | "ok" | "error">("idle");
@@ -66,6 +68,7 @@ export function App() {
   const [embeddingsFile, setEmbeddingsFile] = useState<FoodEmbeddingFile | null>(null);
   const [embeddingLoadError, setEmbeddingLoadError] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageDisplayRect, setImageDisplayRect] = useState<Rect | null>(null);
   const [imagePayload, setImagePayload] = useState<ImagePayload | null>(null);
   const [handResult, setHandResult] = useState<HandLandmarkerResult | null>(null);
   const [handMetrics, setHandMetrics] = useState<HandMetrics>(initialHandMetrics);
@@ -106,6 +109,34 @@ export function App() {
     };
   }, [imageUrl]);
 
+  const updateImageDisplayRect = useCallback(() => {
+    const stage = imageStageRef.current;
+    const image = imageRef.current;
+    if (!stage || !image || !image.naturalWidth || !image.naturalHeight) {
+      setImageDisplayRect(null);
+      return;
+    }
+
+    setImageDisplayRect(
+      getContainedRect(
+        { width: stage.clientWidth, height: stage.clientHeight },
+        { width: image.naturalWidth, height: image.naturalHeight },
+      ),
+    );
+  }, []);
+
+  useEffect(() => {
+    const stage = imageStageRef.current;
+    if (!stage) return;
+    const observer = new ResizeObserver(updateImageDisplayRect);
+    observer.observe(stage);
+    window.addEventListener("resize", updateImageDisplayRect);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateImageDisplayRect);
+    };
+  }, [updateImageDisplayRect]);
+
   const embeddingsReady = Boolean(embeddingsFile?.generatedAt && embeddingsFile.embeddings.length > 0);
   const questions = useMemo(() => (selectedFood ? getQuestionsForFood(selectedFood) : []), [selectedFood]);
   const answers = useMemo(() => answersToAdjustments(questions, questionValues), [questions, questionValues]);
@@ -142,6 +173,7 @@ export function App() {
     if (!file) return;
     if (imageUrl) URL.revokeObjectURL(imageUrl);
     setImageUrl(URL.createObjectURL(file));
+    setImageDisplayRect(null);
     setImagePayload(null);
     setHandResult(null);
     setHandMetrics(initialHandMetrics());
@@ -159,6 +191,7 @@ export function App() {
 
   async function handleImageLoaded() {
     if (!imageRef.current) return;
+    updateImageDisplayRect();
     setHandStatus("detecting");
     setHandError("");
     try {
@@ -307,11 +340,11 @@ export function App() {
                   <input accept="image/*" hidden type="file" onChange={(event) => handleFileChange(event.target.files?.[0] ?? null)} />
                 </label>
               </div>
-              <div className="image-stage">
+              <div className="image-stage" ref={imageStageRef}>
                 {imageUrl ? (
                   <>
                     <img alt="アップロードした食品写真" onLoad={handleImageLoaded} ref={imageRef} src={imageUrl} />
-                    <HandOverlay result={handResult} />
+                    <HandOverlay result={handResult} rect={imageDisplayRect} />
                   </>
                 ) : (
                   <div className="empty-state">
