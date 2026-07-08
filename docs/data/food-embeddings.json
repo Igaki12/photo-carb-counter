@@ -1,0 +1,6 @@
+{
+  "model": "gemini-embedding-2",
+  "outputDimensionality": 768,
+  "generatedAt": null,
+  "embeddings": []
+}
