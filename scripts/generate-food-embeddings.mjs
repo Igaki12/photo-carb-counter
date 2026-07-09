@@ -50,7 +50,7 @@ async function saveEmbeddings(embeddings, status = "partial") {
     count: embeddings.length,
     embeddings,
   };
-  await writeFile(outputPath, JSON.stringify(payload, null, 2) + "\n");
+  await writeFile(outputPath, JSON.stringify(payload) + "\n");
 }
 
 async function embedFoodOnce(food) {
