@@ -8,7 +8,7 @@
     "build": "tsc --noEmit -p tsconfig.app.json && vite build && node scripts/ensure-nojekyll.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
-    "data:foods": "python3 scripts/convert_food_table.py",
+    "data:foods": "python3 scripts/convert_fndds_food_data.py",
     "data:embeddings": "node scripts/generate-food-embeddings.mjs"
   },
   "dependencies": {

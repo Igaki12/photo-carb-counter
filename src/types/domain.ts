@@ -10,6 +10,11 @@ export interface FoodItem {
   searchText: string;
   carbAvailableGPer100g: number | null;
   carbMonosaccharideEqGPer100g: number | null;
+  totalSugarsGPer100g?: number | null;
+  fiberGPer100g?: number | null;
+  energyKcalPer100g?: number | null;
+  proteinGPer100g?: number | null;
+  fatGPer100g?: number | null;
   isEstimated: boolean;
   isTrace: boolean;
   raw: {
@@ -17,9 +22,24 @@ export interface FoodItem {
     carbMonosaccharideEq: string;
   };
   note: string;
+  portions?: Array<{
+    description: string;
+    gramWeight: number;
+    sequenceNumber?: number;
+    modifier?: string;
+  }>;
+  ingredients?: Array<{
+    description: string;
+    ingredientWeight: number | null;
+    amount: number | null;
+    portionDescription: string;
+  }>;
+  fdcId?: number;
   source: {
     name: string;
-    sheet: string;
+    sheet?: string;
+    dataType?: string;
+    publicationDate?: string;
     unit: string;
   };
 }

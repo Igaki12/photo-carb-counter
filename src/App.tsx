@@ -560,7 +560,7 @@ export function App() {
                     <div>
                       <span>参照値</span>
                       <strong>{formatNumber(selectedFood?.carbAvailableGPer100g ?? 0)} g</strong>
-                      <small>100gあたり利用可能炭水化物</small>
+                      <small>100gあたり炭水化物</small>
                     </div>
                   </div>
                   <div className="component-table">

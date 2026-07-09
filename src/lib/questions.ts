@@ -10,8 +10,16 @@ function matchesName(food: FoodItem, pattern: RegExp): boolean {
 
 export function getQuestionsForFood(food: FoodItem): QuestionDefinition[] {
   const questions: QuestionDefinition[] = [];
+  const beveragePattern =
+    /コーヒー|茶|紅茶|飲料|ジュース|ココア|乳飲料|coffee|tea|juice|smoothie|soft drink|soda|milkshake|latte|mocha|beverage|drink/i;
+  const staplePattern =
+    /パン|サンド|バンズ|米|ごはん|めし|めん|うどん|そば|中華めん|パスタ|bread|sandwich|bun|rice|noodle|pasta|bagel|tortilla|burrito|wrap|pizza|burger|hamburger/i;
+  const sandwichPattern = /パン|サンド|バンズ|調理済み|ハンバーガー|bread|sandwich|bun|burger|hamburger|wrap|burrito/i;
+  const sweetPattern =
+    /菓子|ケーキ|チョコ|ゼリー|ジャム|デザート|アイス|cake|cookie|pie|candy|chocolate|dessert|ice cream|frozen yogurt|pudding|sweet|doughnut|donut/i;
+  const fruitPattern = /果実|フルーツ|りんご|みかん|バナナ|いちご|fruit|apple|orange|banana|strawberry|grape|melon|berry/i;
 
-  if (food.group === "16" || matches(food, /コーヒー|茶|紅茶|飲料|ジュース|ココア|乳飲料/)) {
+  if (food.group === "16" || matches(food, beveragePattern)) {
     questions.push(
       {
         id: "serving_volume_ml",
@@ -55,14 +63,14 @@ export function getQuestionsForFood(food: FoodItem): QuestionDefinition[] {
     );
   }
 
-  if (food.group === "01" || matchesName(food, /パン|サンド|バンズ|米|ごはん|めし|めん|うどん|そば|中華めん|パスタ/)) {
+  if (food.group === "01" || matchesName(food, staplePattern) || matches(food, /pizza|burgers|sandwiches|rice|pasta|noodles/i)) {
     questions.push(
       {
         id: "portion_count",
         label: "主食の個数・枚数",
         kind: "number",
         unit: "個/枚",
-        defaultValue: matches(food, /パン|サンド/) ? 2 : 1,
+        defaultValue: matches(food, /パン|サンド|sandwich|bread/i) ? 2 : 1,
       },
       {
         id: "staple_type",
@@ -79,7 +87,7 @@ export function getQuestionsForFood(food: FoodItem): QuestionDefinition[] {
     );
   }
 
-  if (matchesName(food, /パン|サンド|バンズ|調理済み|ハンバーガー/)) {
+  if (matchesName(food, sandwichPattern) || matches(food, /sandwiches|burgers/i)) {
     questions.push(
       {
         id: "spread",
@@ -109,7 +117,7 @@ export function getQuestionsForFood(food: FoodItem): QuestionDefinition[] {
     );
   }
 
-  if (food.group === "15" || matches(food, /菓子|ケーキ|チョコ|ゼリー|ジャム|デザート|アイス/)) {
+  if (food.group === "15" || matches(food, sweetPattern)) {
     questions.push({
       id: "sweet_extra",
       label: "クリーム・ジャム・シロップの追加",
@@ -124,7 +132,7 @@ export function getQuestionsForFood(food: FoodItem): QuestionDefinition[] {
     });
   }
 
-  if (food.group === "07" || matchesName(food, /果実|フルーツ|りんご|みかん|バナナ|いちご/)) {
+  if (food.group === "07" || matchesName(food, fruitPattern) || matches(food, /fruits/i)) {
     questions.push({
       id: "peel_seed",
       label: "皮・種などを除いた量で見えていますか",

@@ -7,16 +7,22 @@ const foodItems = foods as FoodItem[];
 
 describe("question rules", () => {
   it("asks beverage questions for coffee without rice/staple false positives from notes", () => {
-    const coffee = foodItems.find((food) => food.foodNo === "16045")!;
+    const coffee = foodItems.find((food) => food.name === "Coffee, Latte")!;
     const labels = getQuestionsForFood(coffee).map((question) => question.label);
     expect(labels).toContain("追加した砂糖");
     expect(labels).not.toContain("主食の個数・枚数");
   });
 
-  it("asks bread and filling questions for bread-like foods", () => {
-    const bread = foodItems.find((food) => food.foodNo === "01026")!;
-    const labels = getQuestionsForFood(bread).map((question) => question.label);
+  it("asks staple and filling questions for sandwich-like foods", () => {
+    const sandwich = foodItems.find((food) => food.name === "Cheese sandwich, NFS")!;
+    const labels = getQuestionsForFood(sandwich).map((question) => question.label);
     expect(labels).toContain("主食の個数・枚数");
     expect(labels).toContain("マヨネーズ・ドレッシング");
+  });
+
+  it("asks sweet questions for dessert foods", () => {
+    const iceCream = foodItems.find((food) => food.name === "Ice cream sandwich, vanilla")!;
+    const labels = getQuestionsForFood(iceCream).map((question) => question.label);
+    expect(labels).toContain("クリーム・ジャム・シロップの追加");
   });
 });

@@ -9,14 +9,16 @@
 ## Main Commands
 - Install dependencies: `npm install`
 - Run dev server: `npm run dev -- --port 5173`
-- Convert the Japanese food composition workbook: `npm run data:foods`
+- Convert FoodData Central FNDDS data: `npm run data:foods`
 - Generate food-name embeddings: `npm run data:embeddings`
 - Test: `npm run test`
 - Build for GitHub Pages: `npm run build`
 
 ## Data Pipeline
-- Source workbook: `日本食品標準成分表-炭水化物編_2023.xlsx`
-- Conversion script: `scripts/convert_food_table.py`
+- Primary source data: `FoodDataCentral_FNDDS.json`
+- FNDDS conversion script: `scripts/convert_fndds_food_data.py`
+- Legacy Japanese workbook source: `日本食品標準成分表-炭水化物編_2023.xlsx`
+- Legacy Japanese workbook conversion script: `scripts/convert_food_table.py`
 - Converted food data:
   - `src/data/foods.json` for tests/imports
   - `public/data/foods.json` for runtime fetch
@@ -25,7 +27,9 @@
 - Embedding output:
   - `public/data/food-embeddings.json`
   - `docs/data/food-embeddings.json` after build
+- FNDDS conversion produces 5432 foods; 5431 have carbohydrate values.
 - Embeddings are generated from food names only, using `gemini-embedding-2`, default 768 dimensions.
+- Running `npm run data:foods` resets `public/data/food-embeddings.json` because embeddings are tied to food IDs and must be regenerated after changing the food dataset.
 - The embedding script supports resume/partial save. If a 429/5xx failure occurs, rerun `npm run data:embeddings`; existing food IDs are skipped.
 - Useful generation command:
   ```bash
@@ -40,7 +44,7 @@
 - The hand overlay must align to the displayed image area, not the full image-stage container. Keep `src/lib/imageGeometry.ts` and `HandOverlay` behavior intact when changing image layout.
 - Food candidate ranking uses dot product over normalized vectors. Manual text search remains available if embeddings are missing or API calls fail.
 - Additional questions are rule-based in `src/lib/questions.ts`. Avoid matching staple-food rules against workbook notes unless intentionally needed.
-- Final carbohydrate calculation is in `src/lib/carb.ts`, using component grams times `CHOAVL` g/100g plus question-based adjustments.
+- Final carbohydrate calculation is in `src/lib/carb.ts`, using component grams times FNDDS `Carbohydrate, by difference` g/100g plus question-based adjustments.
 
 ## Gemini API Notes
 - Browser runtime uses `https://generativelanguage.googleapis.com/v1beta`.
@@ -62,8 +66,8 @@
 - Run `npm run build` after UI, data, or deployment changes.
 - Confirm `docs/.nojekyll` exists after build.
 - For embedding data, verify:
-  - `embeddings.length === 1101`
-  - unique `foodId` count is 1101
+  - `embeddings.length === 5432`
+  - unique `foodId` count is 5432
   - vector length is 768
   - no missing or extra food IDs
 - For frontend QA, check:
@@ -82,5 +86,6 @@
 - `src/lib/imageGeometry.ts`: object-fit contain geometry for image/overlay alignment
 - `src/lib/questions.ts`: food-specific question rules
 - `src/lib/ranking.ts`: embedding and text ranking
-- `scripts/convert_food_table.py`: workbook to JSON conversion
+- `scripts/convert_fndds_food_data.py`: FNDDS JSON to app JSON conversion
+- `scripts/convert_food_table.py`: legacy Japanese workbook to JSON conversion
 - `scripts/generate-food-embeddings.mjs`: resumable embedding generation

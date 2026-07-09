@@ -85,7 +85,17 @@ export function calculateCarbEstimate(
 }
 
 export function fallbackWeightEstimate(food: FoodItem): WeightEstimate {
-  const grams = food.group === "16" ? 250 : food.group === "01" ? 120 : 100;
+  const text = `${food.name} ${food.groupName}`.toLowerCase();
+  const defaultPortion = food.portions?.find((portion) =>
+    /quantity not specified|1 sandwich|1 burger|1 hamburger|1 medium|1 cup/i.test(portion.description),
+  );
+  const grams =
+    defaultPortion?.gramWeight ??
+    (/coffee|tea|juice|drink|beverage|milk|latte/.test(text)
+      ? 240
+      : /sandwich|burger|pizza|rice|pasta|noodle|bread/.test(text)
+        ? 120
+        : 100);
   return {
     selectedFoodName: food.name,
     visibleComponents: [food.name],
