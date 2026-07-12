@@ -37,7 +37,7 @@ import type {
 } from "./types/domain";
 
 const STEP_LABELS = ["写真", "手検出", "食品選択", "質問", "結果"];
-const appIconUrl = `${import.meta.env.BASE_URL}assets/app-icon.jpg`;
+const appIconUrl = `${import.meta.env.BASE_URL}assets/app-icon.png`;
 
 function initialHandMetrics(): HandMetrics {
   return { detected: false, confidence: 0, landmarkCount: 0 };

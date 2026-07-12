@@ -65,7 +65,7 @@
 
 ## UI 方針
 - 臨床・研究ツール寄りの UI。白背景、コンパクトなパネル、teal / indigo のアクセント、控えめな警告表示を維持する。
-- `public/assets/app-icon.jpg` はアプリアイコンと favicon の元ファイル。
+- `public/assets/app-icon.png` はアプリアイコンと favicon の元ファイル。差し替え元はリポジトリ直下の `icon.png`。
 - 上部バーの `Gemini API キー` ラベルは、横長画面では入力欄行の上端に揃える。
 - カードの入れ子や装飾的なカードを増やさない。ランディングページ風の hero section は作らない。
 
