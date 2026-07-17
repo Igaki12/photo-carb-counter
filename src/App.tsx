@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HandOverlay } from "./components/HandOverlay";
 import { QuestionForm } from "./components/QuestionForm";
 import { calculateCarbEstimate, fallbackWeightEstimate } from "./lib/carb";
+import { mergeFoodEmbeddingFiles } from "./lib/embeddings";
 import { answersToAdjustments, getQuestionsForFood } from "./lib/questions";
 import { manualRank, rankFoodsByEmbedding, rankFoodsByText } from "./lib/ranking";
 import {
@@ -57,6 +58,20 @@ function formatNumber(value: number): string {
   return value.toLocaleString("ja-JP", { maximumFractionDigits: 1 });
 }
 
+function buildFoodSourceSummary(foods: FoodItem[]) {
+  const counts = new Map<string, { name: string; unit: string; count: number }>();
+  for (const food of foods) {
+    const key = `${food.source.name}\u0000${food.source.unit}`;
+    const current = counts.get(key);
+    if (current) {
+      current.count += 1;
+    } else {
+      counts.set(key, { name: food.source.name, unit: food.source.unit, count: 1 });
+    }
+  }
+  return { count: foods.length, sources: Array.from(counts.values()) };
+}
+
 export function App() {
   const imageStageRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -94,12 +109,15 @@ export function App() {
       .then((data: FoodItem[]) => setFoods(data))
       .catch((error: Error) => setFoodLoadError(error.message));
 
-    fetch(`${import.meta.env.BASE_URL}data/food-embeddings.json`)
-      .then((response) => {
-        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-        return response.json();
-      })
-      .then((data: FoodEmbeddingFile) => setEmbeddingsFile(data))
+    Promise.all(
+      ["food-embeddings.json", "mext-food-embeddings.json"].map((filename) =>
+        fetch(`${import.meta.env.BASE_URL}data/${filename}`).then((response) => {
+          if (!response.ok) throw new Error(`${filename}: ${response.status} ${response.statusText}`);
+          return response.json() as Promise<FoodEmbeddingFile>;
+        }),
+      ),
+    )
+      .then((files) => setEmbeddingsFile(mergeFoodEmbeddingFiles(files)))
       .catch((error: Error) => setEmbeddingLoadError(error.message));
   }, []);
 
@@ -138,6 +156,7 @@ export function App() {
   }, [updateImageDisplayRect]);
 
   const embeddingsReady = Boolean(embeddingsFile?.generatedAt && embeddingsFile.embeddings.length > 0);
+  const foodSourceSummary = useMemo(() => buildFoodSourceSummary(foods), [foods]);
   const questions = useMemo(() => (selectedFood ? getQuestionsForFood(selectedFood) : []), [selectedFood]);
   const answers = useMemo(() => answersToAdjustments(questions, questionValues), [questions, questionValues]);
   const carbEstimate: CarbEstimate | null = useMemo(() => {
@@ -590,7 +609,7 @@ export function App() {
             <RefreshCcw size={16} />
             リセット
           </button>
-          <button type="button" onClick={() => downloadJson("foods-source-summary.json", { count: foods.length, source: foods[0]?.source })}>
+          <button type="button" onClick={() => downloadJson("foods-source-summary.json", foodSourceSummary)}>
             <Download size={16} />
             データ概要
           </button>

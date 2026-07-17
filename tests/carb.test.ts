@@ -5,6 +5,7 @@ import type { FoodItem, WeightEstimate } from "../src/types/domain";
 
 const foodItems = foods as FoodItem[];
 const sandwich = foodItems.find((food) => food.name === "Cheese sandwich, NFS")!;
+const rice = foodItems.find((food) => food.id === "mext-01088")!;
 
 describe("carb calculation", () => {
   it("calculates a single food from grams and carbs per 100g", () => {
@@ -41,5 +42,23 @@ describe("carb calculation", () => {
       { questionId: "added_sugar_tsp", label: "追加した砂糖", value: 2, unit: "小さじ", carbAdjustmentG: 6 },
     ]);
     expect(result.totalCarbsG).toBeCloseTo(22.0, 1);
+  });
+
+  it("calculates MEXT foods from CHOCDF- per 100g values", () => {
+    const estimate: WeightEstimate = {
+      selectedFoodName: rice.name,
+      visibleComponents: [rice.name],
+      edibleGrams: 150,
+      minEdibleGrams: 120,
+      maxEdibleGrams: 180,
+      confidence: 0.8,
+      rationale: "test",
+      components: [{ label: rice.name, foodId: rice.id, grams: 150, minGrams: 120, maxGrams: 180 }],
+    };
+
+    const result = calculateCarbEstimate(rice, foodItems, estimate, []);
+    expect(result.totalCarbsG).toBe(55.7);
+    expect(result.minCarbsG).toBe(44.5);
+    expect(result.maxCarbsG).toBe(66.8);
   });
 });

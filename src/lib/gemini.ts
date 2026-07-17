@@ -137,7 +137,7 @@ export async function estimateWeightWithGemini(params: {
     "component.foodId は、最も近い食品成分表項目の id を指定してください。不明な部品は選択食品の id を使ってください。",
     "",
     `選択食品: ${selectedFood.id} ${selectedFood.name} (${selectedFood.groupName})`,
-    `100gあたり利用可能炭水化物: ${selectedFood.carbAvailableGPer100g ?? "不明"} g`,
+    `100gあたり炭水化物: ${selectedFood.carbAvailableGPer100g ?? "不明"} g`,
     `手の検出: ${handMetrics.detected ? "あり" : "なし"}, 信頼度: ${handMetrics.confidence.toFixed(2)}, 手サイズ: ${handSize}`,
     `手の境界ボックス: ${handMetrics.boundingBox ? JSON.stringify(handMetrics.boundingBox) : "なし"}`,
     `候補食品: ${relatedFoods.map((food) => `${food.id}:${food.name}`).join(" / ")}`,

@@ -56,6 +56,10 @@ export interface FoodEmbeddingFile {
   model: string;
   outputDimensionality: number;
   generatedAt: string | null;
+  status?: "empty" | "partial" | "complete";
+  savedAt?: string | null;
+  count?: number;
+  scope?: "fndds" | "mext";
   embeddings: FoodEmbedding[];
 }
 
